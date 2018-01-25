@@ -29,8 +29,28 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
-# Logger settings
+# Class in this package
+from .ev3_receiver import Ev3Receiver
+from .ev3_remote_controller import Ev3RemoteController
+from .ev3_robot_message import MessageType
+from .ev3_robot_message import Ev3RobotMessage
+from .ev3_sender import Ev3Sender
+from .ev3_server import Ev3Server
+
+# Logger
 import logging
-logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+# Create the logger used in this package
+ev3_logger = logging.getLogger(__name__)
+ev3_logger.setLevel(logging.DEBUG)
+
+# Logger settings
+formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+handler = logging.StreamHandler()
+handler.setFormatter(formatter)
+ev3_logger.addHandler(handler)
+
+# First message
+ev3_logger.info("Logger created for the ev3_remoted package")
 
 

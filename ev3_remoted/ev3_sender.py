@@ -36,18 +36,19 @@ import ev3_remoted.ev3_robot_model
 from ev3_remoted.ev3_robot_message import Ev3RobotMessage
 from ev3_remoted.ev3_robot_message import MessageType
 from time import sleep
+import ev3_remoted
 
 # Logger settings
-import logging
+#import logging
 
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+#logger = logging.getLogger()
+#handler = logging.StreamHandler()
+#formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+#handler.setFormatter(formatter)
+#logger.addHandler(handler)
 
 # Change the following line to set desired log details
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 
 class Ev3Sender(threading.Thread):
@@ -103,7 +104,7 @@ class Ev3Sender(threading.Thread):
             # Cycle until a stop request is received
             while not self.__stop_server:
                 # Check if the remote_controllers_list contains something
-                logging.debug("ev3_sender: run() - remote_controllers_list - " + str(self.remote_controllers_list))
+                ev3_remoted.ev3_logger.debug("ev3_sender: run() - remote_controllers_list - " + str(self.remote_controllers_list))
                 if len(self.remote_controllers_list) != 0:
                     # Send to every known address a message with the robot status
                     for controller_address in self.remote_controllers_list:
@@ -111,7 +112,7 @@ class Ev3Sender(threading.Thread):
                         message.message_function = MessageType.robot_status
                         message_str = json.dumps(message, default=message.json_default)
                         encoded_message = str.encode(message_str, encoding = 'utf-8')
-                        logging.debug("ev3_sender: run() - controller_address - " + str(controller_address))
+                        ev3_remoted.ev3_logger.debug("ev3_sender: run() - controller_address - " + str(controller_address))
                         outbound_socket.sendto(encoded_message, controller_address)
                 sleep(self.__default_timeSample)
 

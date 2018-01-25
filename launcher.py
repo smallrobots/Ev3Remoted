@@ -31,6 +31,7 @@
 
 import socket
 import os
+#import logging
 from ev3_remoted.ev3_server import Ev3Server
 
 
@@ -62,5 +63,6 @@ class Launcher(object):
         self.server.start()
         #self.tracked_explor3r.start()
 
+#logging.basicConfig(level=logging.INFO)
 a_launcher = Launcher()
 a_launcher.start()

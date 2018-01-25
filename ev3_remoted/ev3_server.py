@@ -31,21 +31,22 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
+import ev3_remoted
 from ev3_remoted.ev3_robot_model import Ev3RobotModel
 from ev3_remoted.ev3_sender import Ev3Sender
 from ev3_remoted.ev3_receiver import Ev3Receiver
 
 # Logger settings
-import logging
+#import logging
 
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+#logger = logging.getLogger()
+#handler = logging.StreamHandler()
+#formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+#handler.setFormatter(formatter)
+#logger.addHandler(handler)
 
 # Change the following line to set desired log details
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 
 class Ev3Server(object):
@@ -102,9 +103,9 @@ with Ev3Dev firmware."""
                                     remote_controllers_list = self.remote_controllers_list)
 
         if self.sender.remote_controllers_list is not self.receiver.remote_controllers_list:
-            logging.critical("Ev3Server: sender and receiver do not share the remote_controllers_list")
+            ev3_remoted.ev3_logger.critical("Ev3Server: sender and receiver do not share the remote_controllers_list")
         else:
-            logging.debug("Ev3Server: sender and receiver correctly share same remote_controllers_list")
+            ev3_remoted.ev3_logger.debug("Ev3Server: sender and receiver correctly share same remote_controllers_list")
 
     # Properties
     @property
@@ -112,8 +113,8 @@ with Ev3Dev firmware."""
         """Property that returns True if the ev3_server is correctly running, False otherwise"""
         sender_alive = self.sender.isAlive()
         receiver_alive = self.receiver.isAlive()
-        logging.debug("Ev3Server: sender_alive = " + str(sender_alive))
-        logging.debug("ev3_server: receiver_alive = " + str(receiver_alive))
+        ev3_remoted.ev3_logger.debug("Ev3Server: sender_alive = " + str(sender_alive))
+        ev3_remoted.ev3_logger.debug("ev3_server: receiver_alive = " + str(receiver_alive))
         return sender_alive and receiver_alive
 
     @property
@@ -188,19 +189,19 @@ with Ev3Dev firmware."""
         """Start the server"""
         # Start the receiver thread
         try:
-            logging.info("Ev3Server: Receiver thread starting...")
+            ev3_remoted.ev3_logger.info("Ev3Server: Receiver thread starting...")
             self.receiver.start()
-            logging.info("Ev3Server: Receiver thread started")
+            ev3_remoted.ev3_logger.info("Ev3Server: Receiver thread started")
         except BaseException as e:
-            logging.critical("Ev3Server: Raised exception during receiver startup: " + str(e))
+            ev3_remoted.ev3_logger.critical("Ev3Server: Raised exception during receiver startup: " + str(e))
 
         # Start the sender thread
         try:
-            logging.info("Ev3Server: Sender thread starting...")
+            ev3_remoted.ev3_logger.info("Ev3Server: Sender thread starting...")
             self.sender.start()
-            logging.info("Ev3Server: Sender thread started")
+            ev3_remoted.ev3_logger.info("Ev3Server: Sender thread started")
         except BaseException as e:
-            logging.critical("Ev3Server: Raised exception during Sender startup: " + str(e))
+            ev3_remoted.ev3_logger.critical("Ev3Server: Raised exception during Sender startup: " + str(e))
 
     # Stop the server
     def stop(self):

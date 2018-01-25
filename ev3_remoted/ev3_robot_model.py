@@ -29,8 +29,10 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
+import ev3_remoted
 from ev3_remoted.ev3_robot_message import Ev3RobotMessage
 import json
+
 
 
 class Ev3RobotModel(object):
@@ -102,7 +104,8 @@ class Ev3RobotModel(object):
             # Something went wrong with the decoding
             # For the moment just print the Exception
             # must be further investigated
-            print(theException)
+            ev3_remoted.ev3_logger.critical(theException)
+            #print(theException)
         finally:
             # Increment the number of processed messages
             self.__processed_messages += 1
