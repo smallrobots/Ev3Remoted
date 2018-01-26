@@ -37,6 +37,14 @@ from ev3_remoted import *
 class Launcher(object):
     """Main class used to launcher the Ev3TrackedExplor3r with remote control"""
 
+    @staticmethod
+    def get_ip_address():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        socket_name = s.getsockname()[0]
+        s.close()
+        return socket_name
+
     def __init__(self):
         """ Default constructor """
         self.local_ip_address = self.get_ip_address()
@@ -63,13 +71,7 @@ class Launcher(object):
         self.server.start()
         #self.tracked_explor3r.start()
 
-    @staticmethod
-    def get_ip_address():
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        s.connect(("8.8.8.8", 80))
-        socket_name = s.getsockname()[0]
-        s.close()
-        return socket_name
 
+# Main code
 a_launcher = Launcher()
 a_launcher.start()
