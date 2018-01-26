@@ -38,16 +38,16 @@ from ev3_remoted.ev3_robot_message import MessageType
 from ev3_remoted.ev3_robot_message import Ev3RobotMessage
 
 # Logger settings
-import logging
+#import logging
 
-logger = logging.getLogger()
-handler = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+#logger = logging.getLogger()
+#handler = logging.StreamHandler()
+#formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
+#handler.setFormatter(formatter)
+#logger.addHandler(handler)
 
 # Change the following line to set desired log details
-logger.setLevel(logging.DEBUG)
+#logger.setLevel(logging.DEBUG)
 
 
 class Ev3Receiver(threading.Thread):
@@ -98,29 +98,29 @@ class Ev3Receiver(threading.Thread):
         # Bind the inbound socket
         server_socket.settimeout(self.__default_timeout)
         try:
-            logging.info("Ev3Receiver: starting...")
-            logging.info("Ev3Receiver: binding socket at server address:" + str(server_address))
+            ev3_remoted.ev3_logger.info("Ev3Receiver: starting...")
+            ev3_remoted.ev3_logger.info("Ev3Receiver: binding socket at server address:" + str(server_address))
             server_socket.bind(server_address)
-            logging.info("Ev3Receiver: socket bound")
+            ev3_remoted.ev3_logger.info("Ev3Receiver: socket bound")
         except Exception as theException:
-            logging.CRITICAL("Ev3Receiver: Exception in routine run() + " + str(theException))
+            ev3_remoted.ev3_logger.critical("Ev3Receiver: Exception in routine run() + " + str(theException))
             raise theException
 
         # Main loop
         while not self.__stop_server:
             try:
                 # Wait for incoming messages
-                logging.debug("Ev3Receiver: waiting an incoming message")
+                ev3_remoted.ev3_logger.debug("Ev3Receiver: waiting an incoming message")
                 remote_controller_message, remote_controller_address = server_socket.recvfrom(self.buffer_size)
             except socket.timeout:
                 # time out
-                logging.debug("Ev3Receiver: timeout")
+                ev3_remoted.ev3_logger.debug("Ev3Receiver: timeout")
                 continue
 
             # Check that the sender and the message are not void
             if remote_controller_address is not None and remote_controller_message:
-                logging.debug("Ev3Receiver: message received from " + str(remote_controller_address))
-                logging.debug("Ev3Receiver: message body:  " + str(remote_controller_message))
+                ev3_remoted.ev3_logger.debug("Ev3Receiver: message received from " + str(remote_controller_address))
+                ev3_remoted.ev3_logger.debug("Ev3Receiver: message body:  " + str(remote_controller_message))
                 # Ok, process the message
                 decoded_message = self.robot_model.process_incoming_message(remote_controller_message)
                 try:
@@ -135,7 +135,7 @@ class Ev3Receiver(threading.Thread):
                         continue
                 except ValueError:
                     # Most probably the controller port is invalid
-                    logging.CRITICAL("Ev3Receiver: ValueError: self.robot_model.remote_controller_port = " +
+                    ev3_remoted.ev3_logger.CRITICAL("Ev3Receiver: ValueError: self.robot_model.remote_controller_port = " +
                                      str(self.robot_model.remote_controller_port))
                     continue
             else:
@@ -144,15 +144,15 @@ class Ev3Receiver(threading.Thread):
 
         # Close the socket before exiting
         server_socket.close()
-        logging.info("Ev3Receiver: released socket at server address:" + str(server_address))
+        ev3_remoted.ev3_logger.info("Ev3Receiver: released socket at server address:" + str(server_address))
 
     # Stop this thread
     def stop(self):
         """Stop this thread"""
-        logging.info("Ev3Receiver: stopping...")
+        ev3_remoted.ev3_logger.info("Ev3Receiver: stopping...")
         self.__stop_server = True
         self.join()
-        logging.info("Ev3Receiver: stopped")
+        ev3_remoted.ev3_logger.info("Ev3Receiver: stopped")
 
     # Update the list of remote controllers if needed
     def update_remote_controllers_list(self, remote_controller_address, message_type):
@@ -164,7 +164,7 @@ class Ev3Receiver(threading.Thread):
                 found = True
                 break
 
-        logging.debug("Ev3Receiver: message_type is: " + str(message_type))
+        ev3_remoted.ev3_logger.debug("Ev3Receiver: message_type is: " + str(message_type))
         if message_type == MessageType.subscribe and not found:
             # add the new remote_controller to the list
             self.remote_controllers_list.append(remote_controller_address)

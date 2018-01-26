@@ -32,6 +32,7 @@
 import socket
 import json
 import threading
+import ev3_remoted
 import ev3_remoted.ev3_robot_model
 import ev3_remoted.ev3_sender
 import ev3_remoted.ev3_receiver

@@ -35,6 +35,7 @@ import threading
 import ev3_remoted.ev3_robot_model
 from time import sleep
 from enum import IntEnum
+import ev3_remoted
 
 
 class MessageType(IntEnum):
@@ -50,11 +51,13 @@ This class can be used for inbound and outbound message"""
 
     # Constructor
     def __init__(self, message_id = 0, 
-                 robot_name = "", robot_address = "", robot_port = "",
+                 robot_name = "",
+                 robot_address = "",
+                 robot_port = "",
                  remote_controller_name = "",
                  remote_controller_address = "", 
                  remote_controller_port = "",
-                 message_function = ""):
+                 message_function = MessageType.subscribe):
         """Default constructor
 Message_function can be on of 'subscribe, unsubscribe, command or robot_status'"""
         self.message_id = message_id                          

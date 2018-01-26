@@ -31,7 +31,7 @@
 
 import socket
 import os
-from ev3_remoted.ev3_server import Ev3Server
+from ev3_remoted import *
 
 
 class Launcher(object):
@@ -39,12 +39,13 @@ class Launcher(object):
 
     def __init__(self):
         """ Default constructor """
-        self.local_ip_address = "127.0.0.1"
-        self.server = Ev3Server()
+        self.local_ip_address = self.get_ip_address()
+        self.local_ip_port = "15999"
+        self.server = Ev3Server(host_name = self.local_ip_address, host_port = self.local_ip_port)
 
     def start(self):
         """ Starting point for this application """
-        # Check wheter the operating system is Windows based or Unix based
+        # Check whether the operating system is Windows based or Unix based
         os.system('cls' if os.name == 'nt' else 'clear')
 
         # Present splash screen
@@ -52,15 +53,23 @@ class Launcher(object):
         print("* Ev3 Tracked Explor3r                                               *")
         print("* Smallrobots.it                                                     *")
         print("*                                                                    *")
-        print("* Local Ev3 host IP Address: " + self.local_ip_address + "                              *")
-        print("* To start, connect to the ip address above with the the remote app. *")
+        print("* Local Ev3 host IP Address: " + self.local_ip_address + "                         *")
+        print("* Local Ev3 host IP Port:    " + self.local_ip_port + "                                   *")
         print("*                                                                    *")
-        print("* Use python3 -O Ev3Launcher.py to disable debug messages            *")
+        print("* Connect to the IP address and port above with the the remote app.  *")
+        print("*                                                                    *")
         print("* Press ctrl-c to stop the Local Ev3 host server                     *")
-        print("*                                                                    *")
         print("**********************************************************************")
         self.server.start()
         #self.tracked_explor3r.start()
+
+    @staticmethod
+    def get_ip_address():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        socket_name = s.getsockname()[0]
+        s.close()
+        return socket_name
 
 a_launcher = Launcher()
 a_launcher.start()

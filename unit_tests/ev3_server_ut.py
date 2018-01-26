@@ -319,6 +319,7 @@ Then check that the robot_model has been updated according to the message receiv
                 super(my_robot_message, self).__init__()
                 self.my_important_status = 0
                 self.my_important_set_point = 0
+
             @staticmethod
             def object_decoder(obj):
                 decoded_object = my_robot_message()
@@ -332,11 +333,13 @@ Then check that the robot_model has been updated according to the message receiv
                 super(my_robot_class, self).__init__()
                 self.my_important_status = 150.1
                 self.my_important_set_point = 25
+
             def process_incoming_message(self, message):
                 super().process_incoming_message(message)
                 message_str = str (message,'utf-8')
                 decodedMessage = json.loads(message_str, object_hook=my_robot_message.object_decoder)
                 self.my_important_set_point = decodedMessage.my_important_set_point
+                return decodedMessage
                 
 
         my_robot = my_robot_class() 
@@ -403,6 +406,7 @@ Test is repeated 100 times"""
                 super(my_robot_message, self).__init__()
                 self.my_important_status = 0
                 self.my_important_set_point = 0
+
             @staticmethod
             def object_decoder(obj):
                 decoded_object = my_robot_message()
@@ -420,7 +424,8 @@ Test is repeated 100 times"""
                 super().process_incoming_message(message)
                 message_str = str (message,'utf-8')
                 decodedMessage = json.loads(message_str, object_hook=my_robot_message.object_decoder)
-                self.my_important_set_point = decodedMessage.my_important_set_point                
+                self.my_important_set_point = decodedMessage.my_important_set_point
+                return decodedMessage
 
         my_robot = my_robot_class() 
         
@@ -492,24 +497,26 @@ Check that the first message received transfers that host address and port to re
                 super(my_robot_message, self).__init__()
                 self.my_important_status = 0
                 self.my_important_set_point = 0
+
             @staticmethod
             def object_decoder(obj):
-                decoded_object = my_robot_message()
                 decoded_object = super(my_robot_message, my_robot_message).object_decoder(obj)
                 decoded_object.my_important_set_point = obj['my_important_set_point']
                 return decoded_object
 
-        # Define a robot class and instantiant an instance
+        # Define a robot class and instantiate an instance
         class my_robot_class(ev3_remoted.ev3_robot_model.Ev3RobotModel):
             def __init__(self):
                 super(my_robot_class, self).__init__()
                 self.my_important_status = 150.1
                 self.my_important_set_point = 25
+
             def process_incoming_message(self, message):
                 super().process_incoming_message(message)
                 message_str = str (message,'utf-8')
                 decodedMessage = json.loads(message_str, object_hook=my_robot_message.object_decoder)
-                self.my_important_set_point = decodedMessage.my_important_set_point                
+                self.my_important_set_point = decodedMessage.my_important_set_point
+                return decodedMessage
 
         my_robot = my_robot_class() 
         
@@ -546,6 +553,7 @@ Check that the first message received transfers that host address and port to re
         message.remote_controller_name = remote_controller_name
         message.remote_controller_address = remote_controller_address
         message.remote_controller_port = remote_controller_port
+        message.message_function = MessageType.subscribe
         message.my_important_set_point = 10
         message_str = json.dumps(message, default=message.json_default)
         encoded_message = str.encode(message_str, encoding = 'utf-8')
@@ -562,16 +570,10 @@ Check that the first message received transfers that host address and port to re
         self.assertEqual(server.robot_model.processed_messages, 1)
 
         # Assert that the robot status has been updated
-        # self.assertEqual(server.controller_host_address, remote_controller_address)
-        # self.assertEqual(server.controller_host_port, remote_controller_port)
-
         print("Test19: (remote_controller_address, remote_controller_port) - "
               + str((remote_controller_address, remote_controller_port)))
         print("Test19: server.remote_controllers_list - " + str(server.remote_controllers_list))
         self.assertEqual(True, (remote_controller_address, remote_controller_port) in server.remote_controllers_list)
-        # Questo test fallisce perchè la porta registrata nella lista è quella dalla quale è pervenuto il messaggio
-        # bisogna modificare in  modo che la porta sia quella per ricevere non per trasmettere
-        # bisogna fare in modo che il messaggio contenga la coppia (indirizzo, porta) alla quale spedire
                         
         # Check server stops
         server.stop()
