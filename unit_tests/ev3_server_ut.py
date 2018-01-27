@@ -322,7 +322,6 @@ Then check that the robot_model has been updated according to the message receiv
 
             @staticmethod
             def object_decoder(obj):
-                decoded_object = my_robot_message()
                 decoded_object = super(my_robot_message, my_robot_message).object_decoder(obj)
                 decoded_object.my_important_set_point = obj['my_important_set_point']
                 return decoded_object
@@ -336,11 +335,10 @@ Then check that the robot_model has been updated according to the message receiv
 
             def process_incoming_message(self, message):
                 super().process_incoming_message(message)
-                message_str = str (message,'utf-8')
-                decodedMessage = json.loads(message_str, object_hook=my_robot_message.object_decoder)
-                self.my_important_set_point = decodedMessage.my_important_set_point
-                return decodedMessage
-                
+                message_str = str(message, 'utf-8')
+                decoded_message = json.loads(message_str, object_hook=my_robot_message.object_decoder)
+                self.my_important_set_point = decoded_message.my_important_set_point
+                return decoded_message
 
         my_robot = my_robot_class() 
         

@@ -125,8 +125,8 @@ class Ev3Receiver(threading.Thread):
                 decoded_message = self.robot_model.process_incoming_message(remote_controller_message)
                 try:
                     if self.robot_model.remote_controller_address is not None \
-                            and self.robot_model.remote_controller_port is not None \
-                            and type(self.robot_model.remote_controller_port) is int:
+                            and self.robot_model.remote_controller_port is not None:  # \
+                            # and type(self.robot_model.remote_controller_port) is int:
                         # remote_controller_address and remote_controller_port seem valid
                         self.update_remote_controllers_list((self.robot_model.remote_controller_address,
                                                              int(self.robot_model.remote_controller_port)),
@@ -135,8 +135,8 @@ class Ev3Receiver(threading.Thread):
                         continue
                 except ValueError:
                     # Most probably the controller port is invalid
-                    ev3_remoted.ev3_logger.CRITICAL("Ev3Receiver: ValueError: self.robot_model.remote_controller_port = " +
-                                     str(self.robot_model.remote_controller_port))
+                    ev3_remoted.ev3_logger.critical("Ev3Receiver: ValueError: self.robot_model.remote_controller_port = " +
+                                                    str(self.robot_model.remote_controller_port))
                     continue
             else:
                 # Proceed with next message

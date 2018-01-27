@@ -105,7 +105,7 @@ class Ev3RobotModel(object):
             # For the moment just print the Exception
             # must be further investigated
             ev3_remoted.ev3_logger.critical(theException)
-            #print(theException)
+            decoded_message = ""
         finally:
             # Increment the number of processed messages
             self.__processed_messages += 1
