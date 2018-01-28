@@ -104,7 +104,8 @@ class Ev3Sender(threading.Thread):
             # Cycle until a stop request is received
             while not self.__stop_server:
                 # Check if the remote_controllers_list contains something
-                ev3_remoted.ev3_logger.debug("ev3_sender: run() - remote_controllers_list - " + str(self.remote_controllers_list))
+                ev3_remoted.ev3_logger.debug("ev3_sender: run() - remote_controllers_list - "
+                                             + str(self.remote_controllers_list))
                 if len(self.remote_controllers_list) != 0:
                     # Send to every known address a message with the robot status
                     for controller_address in self.remote_controllers_list:
@@ -112,15 +113,17 @@ class Ev3Sender(threading.Thread):
                         message.message_function = MessageType.robot_status
                         message_str = json.dumps(message, default=message.json_default)
                         encoded_message = str.encode(message_str, encoding = 'utf-8')
-                        ev3_remoted.ev3_logger.debug("ev3_sender: run() - controller_address - " + str(controller_address))
+                        ev3_remoted.ev3_logger.debug("ev3_sender: run() - sending reply message to - "
+                                                     + str(controller_address))
                         outbound_socket.sendto(encoded_message, controller_address)
+                        ev3_remoted.ev3_logger.debug("ev3_sender: run() - message sent to - "
+                                                     + str(controller_address))
+
                 sleep(self.__default_timeSample)
 
         except Exception as theException:
-            # Something went wrong with the decoding
-            # For the moment just print the Exception
-            # must be further investigated
-            print(theException)
+            # Something went wrong with the outbound socket
+            ev3_remoted.ev3_logger.critical(theException)
         finally:
             # Close the socket
             outbound_socket.close()
