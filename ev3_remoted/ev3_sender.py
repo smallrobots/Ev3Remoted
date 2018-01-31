@@ -123,7 +123,7 @@ class Ev3Sender(threading.Thread):
 
         except Exception as theException:
             # Something went wrong with the outbound socket
-            ev3_remoted.ev3_logger.critical(theException)
+            ev3_remoted.ev3_logger.critical("Ev3Sender: Exception in routine run() + " + str(theException))
         finally:
             # Close the socket
             outbound_socket.close()
