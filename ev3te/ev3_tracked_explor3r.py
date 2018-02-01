@@ -1,5 +1,5 @@
 #################################################################################################
-# ev3_remoted package                                                                           #
+# ev3te package                                                                                 #
 # Version 1.0                                                                                   #
 #                                                                                               #
 # Happily shared under the MIT License (MIT)                                                    #
@@ -29,31 +29,55 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
-# Class in this package
-from .ev3_receiver import Ev3Receiver
-from .ev3_remote_controller import Ev3RemoteController
-from .ev3_robot_message import MessageType
-from .ev3_robot_message import Ev3RobotMessage
-from .ev3_sender import Ev3Sender
-from .ev3_server import Ev3Server
-
-# Logger
-import logging
-
-# Create the logger used in this package
-ev3_logger = logging.getLogger(__name__)
-ev3_logger.setLevel(logging.DEBUG)
-
-# Logger settings
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-ev3_logger.addHandler(handler)
-
-# First message
-ev3_logger.info("Logger created for the ev3_remoted package")
-
-# Running on Ev3
-is_running_on_ev3 = False
+import ev3_remoted
+from ev3_remoted.ev3_robot_model import *
+from ev3dev import ev3 as ev3
 
 
+class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
+    def __init(self):
+        super(Ev3TrackedExplor3rMessage, self).__init__()
+        # Add message fields here
+        # self.my_important_set_point = 0
+
+    @staticmethod
+    def object_decoder(obj):
+        decoded_object = super(Ev3TrackedExplor3rMessage, Ev3TrackedExplor3rMessage).object_decoder(obj)
+        # Decode message fields here
+        # decoded_object.my_important_set_point = obj['my_important_set_point']
+        return decoded_object
+
+
+class Ev3TrackedExplor3r (Ev3RobotModel):
+    """Main class for the Ev3 Tracked Explor3r"""
+
+    # Default main constructor
+    def __init__(self):
+        """Default main constructor for the Ev3TrackedExplor3r class"""
+        # Call parent constructor
+        super(Ev3TrackedExplor3r, self).__init__()
+
+        # Init robot actuators
+        self.left_motor = ev3.LargeMotor('outD')
+        self.right_motor = ev3.LargeMotor('outA')
+        self.head_motor = ev3.MediumMotor('outC')
+
+        # Init robot sensors
+        self.color_sensor = ev3.ColorSensor()
+        assert self.color_sensor.connected
+        self.color_sensor.mode = 'COL-REFLECT'
+
+    # Process the incoming message
+    def process_incoming_message(self, message):
+        """Process the incoming message"""
+        # Call the parent method
+        super().process_incoming_message(message)
+
+        # Decode the message
+        message_str = str(message, 'utf-8')
+        decoded_message = json.loads(message_str, object_hook = Ev3TrackedExplor3rMessage.object_decoder)
+
+        # Use the message fields here
+        # self.my_important_set_point = decoded_message.my_important_set_point
+
+        return decoded_message

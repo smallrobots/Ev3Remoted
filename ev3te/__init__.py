@@ -1,5 +1,5 @@
 #################################################################################################
-# ev3_remoted package                                                                           #
+# ev3te package                                                                                 #
 # Version 1.0                                                                                   #
 #                                                                                               #
 # Happily shared under the MIT License (MIT)                                                    #
@@ -30,30 +30,19 @@
 #################################################################################################
 
 # Class in this package
-from .ev3_receiver import Ev3Receiver
-from .ev3_remote_controller import Ev3RemoteController
-from .ev3_robot_message import MessageType
-from .ev3_robot_message import Ev3RobotMessage
-from .ev3_sender import Ev3Sender
-from .ev3_server import Ev3Server
 
 # Logger
 import logging
 
 # Create the logger used in this package
-ev3_logger = logging.getLogger(__name__)
-ev3_logger.setLevel(logging.DEBUG)
+ev3te_logger = logging.getLogger(__name__)
+ev3te_logger.setLevel(logging.INFO)
 
 # Logger settings
 formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
 handler = logging.StreamHandler()
 handler.setFormatter(formatter)
-ev3_logger.addHandler(handler)
+ev3te_logger.addHandler(handler)
 
 # First message
-ev3_logger.info("Logger created for the ev3_remoted package")
-
-# Running on Ev3
-is_running_on_ev3 = False
-
-
+ev3te_logger.info("Logger created for the ev3_remoted package")

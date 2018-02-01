@@ -38,18 +38,6 @@ from ev3_remoted.ev3_robot_message import MessageType
 from time import sleep
 import ev3_remoted
 
-# Logger settings
-#import logging
-
-#logger = logging.getLogger()
-#handler = logging.StreamHandler()
-#formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-#handler.setFormatter(formatter)
-#logger.addHandler(handler)
-
-# Change the following line to set desired log details
-#logger.setLevel(logging.DEBUG)
-
 
 class Ev3Sender(threading.Thread):
     """Sender Thread"""
@@ -107,14 +95,29 @@ class Ev3Sender(threading.Thread):
                 ev3_remoted.ev3_logger.debug("ev3_sender: run() - remote_controllers_list - "
                                              + str(self.remote_controllers_list))
                 if len(self.remote_controllers_list) != 0:
-                    # Send to every known address a message with the robot status
+                    # Prepare the message to send
+                    message = self.robot_model.create_outbound_message()
+
+                    # Complete the message with robot UDP parameters
+                    message.robot_address = self.host_name
+                    message.robot_port = self.host_port
+
                     for controller_address in self.remote_controllers_list:
-                        message = Ev3RobotMessage()
-                        message.message_function = MessageType.robot_status
-                        message_str = json.dumps(message, default=message.json_default)
+                        # Complete the message with controller UDP parameters
+                        message.remote_controller_address = controller_address[0]
+                        message.remote_controller_port = controller_address[1]
+
+                        # Serialize the message
+                        message_str = json.dumps(message, default = message.json_default)
+                        ev3_remoted.ev3_logger.debug("ev3_sender: run() - message to send - "
+                                                     + message_str)
+
+                        # Encode the message
                         encoded_message = str.encode(message_str, encoding = 'utf-8')
                         ev3_remoted.ev3_logger.debug("ev3_sender: run() - sending reply message to - "
                                                      + str(controller_address))
+
+                        # Send the message
                         outbound_socket.sendto(encoded_message, controller_address)
                         ev3_remoted.ev3_logger.debug("ev3_sender: run() - message sent to - "
                                                      + str(controller_address))

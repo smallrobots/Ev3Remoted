@@ -29,10 +29,9 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
-import ev3_remoted
-from ev3_remoted.ev3_robot_message import Ev3RobotMessage
+from ev3_remoted.ev3_robot_message import *
 import json
-
+from ev3dev import ev3 as ev3
 
 
 class Ev3RobotModel(object):
@@ -52,6 +51,9 @@ class Ev3RobotModel(object):
         self.remote_controller_address = ''
         self.remote_controller_port = 0
 
+        # Battery level
+        self.battery_level = 0
+
     # Properties
     # robot_name
     @property
@@ -60,7 +62,7 @@ class Ev3RobotModel(object):
         return self.__robot_name
 
     @robot_name.setter
-    def robot_name(self,value):
+    def robot_name(self, value):
         self.__robot_name = value
 
     # Server
@@ -70,7 +72,7 @@ class Ev3RobotModel(object):
         return self.__server
 
     @server.setter
-    def server(self,value):
+    def server(self, value):
         self.__server = value
 
     # sent_messages
@@ -113,11 +115,32 @@ class Ev3RobotModel(object):
 
     def create_outbound_message(self):
         """Create a new outbound message"""
-        # Create a default message
-        message = ""
         # Increment the number of outbound message created
         self.__sent_messages = self.__sent_messages + 1
+
+        # Create a default message
+        message = Ev3RobotMessage(message_id = self.__sent_messages,
+                                  robot_name = self.robot_name,
+                                  message_function = MessageType.robot_status)
+
+        try:
+            # Battery level
+            message.battery_level = self.get_battery_level()
+        except Exception as theException:
+            ev3_remoted.ev3_logger.critical("Ev3RobotModel: Exception in routine create_outbound_message() + "
+                                            + str(theException))
         return message
+
+    def get_battery_level(self):
+        """Obtain the battery level"""
+        try:
+            power_supply = ev3.PowerSupply()
+            self.battery_level = power_supply.measured_voltage
+        except Exception as theException:
+            ev3_remoted.ev3_logger.critical("Ev3RobotModel: Exception in routine get_battery_level() + "
+                                            + str(theException))
+            self.battery_level = 0
+        return self.battery_level
 
 
 
