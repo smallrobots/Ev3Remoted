@@ -42,7 +42,7 @@ import logging
 
 # Create the logger used in this package
 ev3_logger = logging.getLogger(__name__)
-ev3_logger.setLevel(logging.DEBUG)
+ev3_logger.setLevel(logging.INFO)
 
 # Logger settings
 formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
@@ -52,8 +52,5 @@ ev3_logger.addHandler(handler)
 
 # First message
 ev3_logger.info("Logger created for the ev3_remoted package")
-
-# Running on Ev3
-is_running_on_ev3 = False
 
 
