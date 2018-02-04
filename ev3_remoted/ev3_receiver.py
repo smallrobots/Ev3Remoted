@@ -131,11 +131,6 @@ class Ev3Receiver(threading.Thread):
                         self.update_remote_controllers_list((self.robot_model.remote_controller_address,
                                                              int(self.robot_model.remote_controller_port)),
                                                              decoded_message.message_function)
-                        # self.update_remote_controllers_list((self.robot_model.remote_controller_address,
-                        #                                      self.robot_model.remote_controller_port),
-                        #                                     decoded_message.message_function)
-                        # self.update_remote_controllers_list(remote_controller_address,
-                        #                                     decoded_message.message_function)
                     else:
                         continue
                 except ValueError:

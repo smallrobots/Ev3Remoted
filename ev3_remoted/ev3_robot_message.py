@@ -69,8 +69,16 @@ Message_function can be on of 'subscribe, unsubscribe, command or robot_status'"
         self.remote_controller_port = remote_controller_port
         self.message_function = message_function
 
+        # **** Telemetry ****
         # Battery level
         self.battery_level = 0
+
+        # **** Commands ****
+        # Forward command
+        self.forward_command = 0
+
+        # Turn command
+        self.turn_command = 0
 
     # Methods
     @staticmethod
@@ -85,7 +93,13 @@ Message_function can be on of 'subscribe, unsubscribe, command or robot_status'"
         decoded_object.remote_controller_address = obj['remote_controller_address']
         decoded_object.remote_controller_port = obj['remote_controller_port']
         decoded_object.message_function = obj['message_function']
+
+        # Telemetry
         decoded_object.battery_level = obj['battery_level']
+
+        # Commands
+        decoded_object.forward_command = obj['forward_command']
+        decoded_object.turn_command = obj['turn_command']
         return decoded_object
 
     # Encoder to json stream

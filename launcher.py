@@ -32,6 +32,8 @@
 import socket
 import os
 from ev3_remoted import *
+import ev3te
+from ev3te.ev3_tracked_explor3r import Ev3TrackedExplor3r
 
 
 class Launcher(object):
@@ -49,7 +51,9 @@ class Launcher(object):
         """ Default constructor """
         self.local_ip_address = self.get_ip_address()
         self.local_ip_port = "15999"
-        self.server = Ev3Server(host_name = self.local_ip_address, host_port = self.local_ip_port)
+        self.robot_model = Ev3TrackedExplor3r()
+        self.server = Ev3Server(host_name = self.local_ip_address, host_port = self.local_ip_port,
+                                robot_model = self.robot_model)
 
     def start(self):
         """ Starting point for this application """

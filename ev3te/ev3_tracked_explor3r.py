@@ -30,6 +30,7 @@
 #################################################################################################
 
 import ev3_remoted
+import ev3te
 from ev3_remoted.ev3_robot_model import *
 from ev3dev import ev3 as ev3
 
@@ -58,19 +59,24 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         super(Ev3TrackedExplor3r, self).__init__()
 
         # Init robot actuators
-        self.left_motor = ev3.LargeMotor('outD')
-        self.right_motor = ev3.LargeMotor('outA')
-        self.head_motor = ev3.MediumMotor('outC')
+        try:
+            self.left_motor = ev3.LargeMotor('outB')
+            self.right_motor = ev3.LargeMotor('outC')
+            self.head_motor = ev3.MediumMotor('outA')
 
-        # Init robot sensors
-        self.color_sensor = ev3.ColorSensor()
-        assert self.color_sensor.connected
-        self.color_sensor.mode = 'COL-REFLECT'
+            # Init robot sensors
+            # self.color_sensor = ev3.ColorSensor()
+            # assert self.color_sensor.connected
+            # self.color_sensor.mode = 'COL-REFLECT'
+        except Exception as theException:
+            ev3te.ev3te_logger.critical("Ev3TrackedExplor3r: Exception in routine __init__() + "
+                                            + str(theException))
 
     # Process the incoming message
     def process_incoming_message(self, message):
         """Process the incoming message"""
         # Call the parent method
+        ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Processing a received message")
         super().process_incoming_message(message)
 
         # Decode the message
@@ -78,6 +84,46 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         decoded_message = json.loads(message_str, object_hook = Ev3TrackedExplor3rMessage.object_decoder)
 
         # Use the message fields here
-        # self.my_important_set_point = decoded_message.my_important_set_point
+        # Actuate the main motors
+        ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Actuating main motors")
+        try:
+            ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Forward Command: " +
+                                     str(decoded_message.forward_command))
+            ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Turn Command: " +
+                                     str(decoded_message.turn_command))
+            if abs(decoded_message.forward_command > 5 or decoded_message.turn_command > 5):
+                if decoded_message.turn_command != 0:
+                    # delta = 1.0 * decoded_message.forward_command / decoded_message.turn_command
+                    delta = decoded_message.turn_command
+                else:
+                    delta = 0
+
+                left_speed = decoded_message.forward_command - delta
+                if left_speed > 1000:
+                    left_speed = 1000
+                if left_speed < -1000:
+                    left_speed = -1000
+
+                right_speed = decoded_message.forward_command + delta
+                if right_speed > 1000:
+                    right_speed = 1000
+                if right_speed < -1000:
+                    right_speed = -1000
+
+                ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - delta: " +
+                                         str(delta))
+                ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - left_speed: " +
+                                         str(left_speed))
+                ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - right_speed: " +
+                                         str(right_speed))
+
+                self.left_motor.run_forever(speed_sp = -left_speed)
+                self.right_motor.run_forever(speed_sp = -right_speed)
+            else:
+                self.left_motor.stop(stop_action = "coast")
+                self.right_motor.stop(stop_action = "coast")
+        except Exception as theException:
+            ev3_remoted.ev3_logger.critical("Ev3TrackedExplor3r: Exception in routine process_incoming_message() + "
+                                            + str(theException))
 
         return decoded_message

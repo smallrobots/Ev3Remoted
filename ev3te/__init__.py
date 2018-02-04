@@ -33,6 +33,7 @@
 
 # Logger
 import logging
+import ev3te.ev3_tracked_explor3r
 
 # Create the logger used in this package
 ev3te_logger = logging.getLogger(__name__)
@@ -45,4 +46,4 @@ handler.setFormatter(formatter)
 ev3te_logger.addHandler(handler)
 
 # First message
-ev3te_logger.info("Logger created for the ev3_remoted package")
+ev3te_logger.info("Logger created for the ev3te package")

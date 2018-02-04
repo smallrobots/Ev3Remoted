@@ -129,6 +129,7 @@ class Ev3RobotModel(object):
         except Exception as theException:
             ev3_remoted.ev3_logger.critical("Ev3RobotModel: Exception in routine create_outbound_message() + "
                                             + str(theException))
+
         return message
 
     def get_battery_level(self):

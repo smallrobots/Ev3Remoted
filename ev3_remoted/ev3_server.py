@@ -83,7 +83,6 @@ with Ev3Dev firmware."""
             raise ValueError("Smallrobots.it \nArgument robot_model must be of type ev3_robot_model")
 
         # Initialize a dictionary of remote_controllers
-        # self.remote_controllers_list = [('0.0.0.0', 0)]
         self.remote_controllers_list = []
 
         # Initialize the sender and the receiver
