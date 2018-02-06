@@ -91,12 +91,13 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                                      str(decoded_message.forward_command))
             ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Turn Command: " +
                                      str(decoded_message.turn_command))
-            if abs(decoded_message.forward_command > 5 or decoded_message.turn_command > 5):
-                if decoded_message.turn_command != 0:
-                    # delta = 1.0 * decoded_message.forward_command / decoded_message.turn_command
-                    delta = decoded_message.turn_command
-                else:
-                    delta = 0
+            if abs(decoded_message.forward_command) > 5 or abs(decoded_message.turn_command) > 5:
+                # if decoded_message.turn_command != 0:
+                #     # delta = 1.0 * decoded_message.forward_command / decoded_message.turn_command
+                #     delta = decoded_message.turn_command
+                # else:
+                #     delta = 0
+                delta = decoded_message.turn_command
 
                 left_speed = decoded_message.forward_command - delta
                 if left_speed > 1000:
