@@ -29,22 +29,23 @@
 # The Ev3TrackedExlpor3r is built with Lego Mindstorms Ev3 and Lego Technic Parts               #
 #################################################################################################
 
-# Class in this package
+import ev3_remoted
+import ev3te
+from ev3_remoted.ev3_robot_model import *
+from ev3dev import ev3 as ev3
 
-# Logger
-import logging
-import ev3te.ev3_tracked_explor3r
-import ev3te.ev3_tracked_explor3r_message
 
-# Create the logger used in this package
-ev3te_logger = logging.getLogger(__name__)
-ev3te_logger.setLevel(logging.INFO)
+class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
+    def __init(self):
+        super(Ev3TrackedExplor3rMessage, self).__init__()
+        # Add message fields here
+        self.left_motor_speed = 0
+        self.right_motor_speed = 0
 
-# Logger settings
-formatter = logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s')
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-ev3te_logger.addHandler(handler)
-
-# First message
-ev3te_logger.info("Logger created for the ev3te package")
+    @staticmethod
+    def object_decoder(obj):
+        decoded_object = super(Ev3TrackedExplor3rMessage, Ev3TrackedExplor3rMessage).object_decoder(obj)
+        # Decode message fields here
+        decoded_object.left_motor_speed = obj['left_motor_speed']
+        decoded_object.right_motor_speed = obj['right_motor_speed']
+        return decoded_object

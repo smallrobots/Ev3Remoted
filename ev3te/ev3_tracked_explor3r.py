@@ -31,22 +31,9 @@
 
 import ev3_remoted
 import ev3te
+from ev3te.ev3_tracked_explor3r_message import *
 from ev3_remoted.ev3_robot_model import *
 from ev3dev import ev3 as ev3
-
-
-class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
-    def __init(self):
-        super(Ev3TrackedExplor3rMessage, self).__init__()
-        # Add message fields here
-        # self.my_important_set_point = 0
-
-    @staticmethod
-    def object_decoder(obj):
-        decoded_object = super(Ev3TrackedExplor3rMessage, Ev3TrackedExplor3rMessage).object_decoder(obj)
-        # Decode message fields here
-        # decoded_object.my_important_set_point = obj['my_important_set_point']
-        return decoded_object
 
 
 class Ev3TrackedExplor3r (Ev3RobotModel):
@@ -128,3 +115,33 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                                             + str(theException))
 
         return decoded_message
+
+    # Create an outbound status message
+    def create_outbound_message(self):
+        # Call parent method
+        message = super().create_outbound_message()
+
+        # Get specific status
+        message.left_motor_speed = self.get_left_motor_speed()
+        message.right_motor_speed = self.get_right_motor_speed()
+
+        return message
+
+    # Get the left motor speed
+    def get_left_motor_speed(self):
+        try:
+            ret_value = self.left_motor.duty_cycle
+        except Exception as theException:
+            ev3te.ev3te_logger.critical("Ev3TrackedExplor3r.get_left_motor_speed() - " + str(theException))
+            ret_value = 0
+        return ret_value
+
+    # Get the left motor speed
+    def get_right_motor_speed(self):
+        try:
+            ret_value = self.right_motor.duty_cycle
+        except Exception as theException:
+            ev3te.ev3te_logger.critical("Ev3TrackedExplor3r.get_right_motor_speed() - " + str(theException))
+            ret_value = 0
+        return ret_value
+
