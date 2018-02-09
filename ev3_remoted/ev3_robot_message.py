@@ -72,6 +72,7 @@ Message_function can be on of 'subscribe, unsubscribe, command or robot_status'"
         # **** Telemetry ****
         # Battery level
         self.battery_level = 0
+        self.battery_amperage = 0
 
         # **** Commands ****
         # Forward command
@@ -96,6 +97,7 @@ Message_function can be on of 'subscribe, unsubscribe, command or robot_status'"
 
         # Telemetry
         decoded_object.battery_level = obj['battery_level']
+        decoded_object.battery_amperage = obj['battery_amperage']
 
         # Commands
         decoded_object.forward_command = obj['forward_command']

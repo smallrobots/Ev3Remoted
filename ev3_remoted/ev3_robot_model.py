@@ -53,6 +53,7 @@ class Ev3RobotModel(object):
 
         # Battery level
         self.battery_level = 0
+        self.battery_amperage = 0
 
     # Properties
     # robot_name
@@ -125,6 +126,7 @@ class Ev3RobotModel(object):
         try:
             # Battery level
             message.battery_level = self.get_battery_level()
+            message.battery_amperage = self.get_battert_amperage()
         except Exception as theException:
             ev3_remoted.ev3_logger.critical("Ev3RobotModel: Exception in routine create_outbound_message() + "
                                             + str(theException))
@@ -140,6 +142,17 @@ class Ev3RobotModel(object):
                                             + str(theException))
             self.battery_level = 0
         return self.battery_level
+
+    def get_battert_amperage(self):
+        """Obtain the battery measured current in microAmps"""
+        try:
+            power_supply = ev3.PowerSupply()
+            self.battery_amperage = power_supply.measured_current
+        except Exception as theException:
+            ev3_remoted.ev3_logger.critical("Ev3RobotModel: Exception in routine get_battery_level() + "
+                                            + str(theException))
+            self.battery_amperage = 0
+        return self.battery_amperage
 
 
 
