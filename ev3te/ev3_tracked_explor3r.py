@@ -45,16 +45,17 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         # Call parent constructor
         super(Ev3TrackedExplor3r, self).__init__()
 
-        # Init robot actuators
         try:
+            # Init robot actuators
             self.left_motor = ev3.LargeMotor('outB')
             self.right_motor = ev3.LargeMotor('outC')
             self.head_motor = ev3.MediumMotor('outA')
 
             # Init robot sensors
-            # self.color_sensor = ev3.ColorSensor()
-            # assert self.color_sensor.connected
-            # self.color_sensor.mode = 'COL-REFLECT'
+            self.color_sensor = ev3.ColorSensor()
+            self.color_sensor.mode = 'COL-REFLECT'
+            self.ir_sensor = ev3.InfraredSensor()
+            self.ir_sensor.mode = 'IR-PROX'
         except Exception as theException:
             ev3te.ev3te_logger.critical("Ev3TrackedExplor3r: Exception in routine __init__() + "
                                             + str(theException))
@@ -78,6 +79,7 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                                      str(decoded_message.forward_command))
             ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Turn Command: " +
                                      str(decoded_message.turn_command))
+            # Main motors
             if abs(decoded_message.forward_command) > 5 or abs(decoded_message.turn_command) > 5:
                 # if decoded_message.turn_command != 0:
                 #     # delta = 1.0 * decoded_message.forward_command / decoded_message.turn_command
@@ -110,6 +112,15 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
             else:
                 self.left_motor.stop(stop_action = "coast")
                 self.right_motor.stop(stop_action = "coast")
+
+            # Head motor
+            if abs(decoded_message.turn_head_command) > 5:
+                head_motor_speed = decoded_message.turn_head_command
+                ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - delta: " +
+                                         str(head_motor_speed))
+                self.head_motor.run_forever(speed_sp = head_motor_speed)
+            else:
+                self.head_motor.stop(stop_action = "coast")
         except Exception as theException:
             ev3_remoted.ev3_logger.critical("Ev3TrackedExplor3r: Exception in routine process_incoming_message() + "
                                             + str(theException))

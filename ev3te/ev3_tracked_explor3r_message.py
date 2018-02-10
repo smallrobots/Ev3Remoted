@@ -38,9 +38,11 @@ from ev3dev import ev3 as ev3
 class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
     def __init(self):
         super(Ev3TrackedExplor3rMessage, self).__init__()
-        # Add message fields here
+        # Telemetry fields
         self.left_motor_speed = 0
         self.right_motor_speed = 0
+        # Command fields
+        self.turn_head_command = 0
 
     @staticmethod
     def object_decoder(obj):
@@ -48,4 +50,5 @@ class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
         # Decode message fields here
         decoded_object.left_motor_speed = obj['left_motor_speed']
         decoded_object.right_motor_speed = obj['right_motor_speed']
+        decoded_object.turn_head_command = obj['turn_head_command']
         return decoded_object
