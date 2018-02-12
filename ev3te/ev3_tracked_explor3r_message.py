@@ -41,6 +41,8 @@ class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
         # Telemetry fields
         self.left_motor_speed = 0
         self.right_motor_speed = 0
+        self.head_motor_position = 0
+        self.single_ir_reading = 0
         # Command fields
         self.turn_head_command = 0
 
@@ -51,4 +53,6 @@ class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
         decoded_object.left_motor_speed = obj['left_motor_speed']
         decoded_object.right_motor_speed = obj['right_motor_speed']
         decoded_object.turn_head_command = obj['turn_head_command']
+        decoded_object.single_ir_reading = obj['single_ir_reading']
+        decoded_object.head_motor_position = obj['head_motor_position']
         return decoded_object
