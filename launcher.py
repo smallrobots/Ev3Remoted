@@ -66,7 +66,7 @@ class Launcher(object):
         print("* Ev3 Tracked Explor3r                                               *")
         print("* Smallrobots.it                                                     *")
         print("*                                                                    *")
-        print("* Local Ev3 host IP Address: " + self.local_ip_address + "                         *")
+        print("* Local Ev3 host IP Address: " + self.local_ip_address + "                           *")
         print("* Local Ev3 host IP Port:    " + self.local_ip_port + "                                   *")
         print("*                                                                    *")
         print("* Connect to the IP address and port above with the the remote app.  *")

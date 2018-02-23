@@ -77,8 +77,6 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         self.ircs_scan_counter = 0
         self.ircs_scan_list = [0] * self.ircs_number_of_scans
 
-        # self.ir_scan_thread = IRScanner(self)
-
     # Process the incoming message
     def process_incoming_message(self, message):
         """Process the incoming message"""
@@ -167,6 +165,22 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         #     if not self.ir_scan_thread.is_alive():
         #         self.ir_scan_thread.start()
         self.ircs_activated = decoded_message.is_continuous_scan_activated
+
+    # Create an outbound status message
+    def create_outbound_message(self):
+        # Call parent method
+        message = super().create_outbound_message()
+
+        # Get specific status
+        message.left_motor_speed = self.get_left_motor_speed()
+        message.right_motor_speed = self.get_right_motor_speed()
+        message.single_ir_reading = self.get_single_ir_reading()
+        message.head_motor_position = self.get_head_motor_position()
+        message.ircs_scan_list = self.get_continuous_scan()
+        return message
+
+    # Get the continuous IR Scan
+    def get_continuous_scan(self):
         if self.ircs_activated:
             try:
                 # Compute the next position set-point
@@ -186,18 +200,10 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                     sleep(0.1)
             except Exception as theException:
                 ev3te.ev3te_logger.critical("Ev3TrackedExplor3r.actuate_continuous_scan() - " + str(theException))
-
-    # Create an outbound status message
-    def create_outbound_message(self):
-        # Call parent method
-        message = super().create_outbound_message()
-
-        # Get specific status
-        message.left_motor_speed = self.get_left_motor_speed()
-        message.right_motor_speed = self.get_right_motor_speed()
-        message.single_ir_reading = self.get_single_ir_reading()
-        message.head_motor_position = self.get_head_motor_position()
-        return message
+            return self.ircs_scan_list
+        else:
+            self.ircs_scan_list = [0] * self.ircs_number_of_scans
+        return self.ircs_scan_list
 
     # Get the left motor speed
     def get_left_motor_speed(self):
@@ -240,48 +246,3 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
             ret_value = 0
         return ret_value
 
-
-class IRScanner(threading.Thread):
-    def __init__(self, robot_model):
-        # Call base class constructor
-        super(IRScanner, self).__init__()
-
-        # Init fields
-        self.robot_model = robot_model
-        self.__to_be_stopped = False
-        self.__already_running = False
-        self.leftmost = - 150
-        self.rightmost = 150
-        self.step = 30
-
-        # Declare the list that will contain the IR Scan
-        self.number_of_scans = int((self.rightmost - self.leftmost) / self.step)
-        self.scan_list = [0] * self.number_of_scans
-
-    # Worker definition
-    def run(self):
-        ev3te.ev3te_logger.info("Starting continuous scan")
-        scan_item = 0
-        while not self.__to_be_stopped:
-            # bring the motor in the left most position
-            try:
-                # Compute the next position set-point
-                if scan_item >= self.number_of_scans:
-                    scan_item = 0
-                position_to_scan = self.leftmost + scan_item * self.step
-                # Move the motor
-                max_speed = self.robot_model.head_motor.max_speed
-                self.robot_model.head_motor.run_to_abs_pos(speed_sp=400, position_sp=position_to_scan)
-                while 'running' in self.robot_model.head_motor.state:
-                    sleep(0.1)
-                # Scan the obstacle distance
-                self.scan_list[scan_item] = self.robot_model.ir_sensor.proximity
-                # Advance to next step
-                scan_item = scan_item + 1
-                sleep(1)
-            except Exception as theException:
-                ev3te.ev3te_logger.debug("IRScanner.run() - " + str(theException))
-
-    def stop(self):
-        ev3te.ev3te_logger.info("Stopping continuous scan")
-        self.__to_be_stopped = True
