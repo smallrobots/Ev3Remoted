@@ -63,12 +63,16 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
             # Most probably one of the sensors or one of the actuators is not connected
             ev3te.ev3te_logger.critical("Ev3TrackedExplor3r: Exception in routine __init__() + "
                                         + str(theException))
+
+        # Rover selected
+        self.rover_selected = 0
+
         # Single Scan
         self.ir_reading_update_counter = 0
         self.ir_samples_to_skip = 5
         self.ir_last_reading = 0
 
-        # Continuous scan
+        # Continuous scan (default setting is for Ev3 Tracked Explor3r)
         self.ircs_activated = False
         self.ircs_leftmost = -150
         self.ircs_rightmost = 150
@@ -88,6 +92,21 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         message_str = str(message, 'utf-8')
         decoded_message = json.loads(message_str, object_hook = Ev3TrackedExplor3rMessage.object_decoder)
 
+        # Rover selected
+        if self.rover_selected != decoded_message.rover_selected:
+            self.rover_selected = decoded_message.rover_selected
+            if self.rover_selected == 0:
+                self.ircs_leftmost = -150
+                self.ircs_rightmost = 150
+                self.ircs_step = 10
+            elif self.rover_selected == 1:
+                self.ircs_leftmost = -1200
+                self.ircs_rightmost = 1200
+                self.ircs_step = 80
+            self.ircs_number_of_scans = int((self.ircs_rightmost - self.ircs_leftmost) / self.ircs_step)
+            self.ircs_scan_counter = 0
+            self.ircs_scan_list = [0] * self.ircs_number_of_scans
+
         # Use the message fields here
         # Actuate the main motors
         ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Actuating main motors")
@@ -96,12 +115,19 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                                      str(decoded_message.forward_command))
             ev3te.ev3te_logger.debug("Ev3TrackedExplor3r.process_incoming_message() - Turn Command: " +
                                      str(decoded_message.turn_command))
-            # Main motors
-            self.actuate_main_motors(decoded_message)
+
+            if self.rover_selected == 0:
+                # Main motors
+                self.actuate_main_motors(decoded_message)
+
             # Head motor
-            self.actuate_head_motor(decoded_message)
+            # Must be moved only if continuous scan is not activated
+            if not self.ircs_activated:
+                self.actuate_head_motor(decoded_message)
+
             # Continuous scan
             self.actuate_continuous_scan(decoded_message)
+
         except Exception as theException:
             ev3_remoted.ev3_logger.critical("Ev3TrackedExplor3r: Exception in routine process_incoming_message() + "
                                             + str(theException))
@@ -172,8 +198,9 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
         message = super().create_outbound_message()
 
         # Get specific status
-        message.left_motor_speed = self.get_left_motor_speed()
-        message.right_motor_speed = self.get_right_motor_speed()
+        if self.rover_selected == 0:
+            message.left_motor_speed = self.get_left_motor_speed()
+            message.right_motor_speed = self.get_right_motor_speed()
         message.single_ir_reading = self.get_single_ir_reading()
         message.head_motor_position = self.get_head_motor_position()
         message.ircs_scan_list = self.get_continuous_scan()
@@ -187,17 +214,22 @@ class Ev3TrackedExplor3r (Ev3RobotModel):
                 if self.ircs_scan_counter >= self.ircs_number_of_scans:
                     self.ircs_scan_counter = 0
                 position_to_scan = self.ircs_leftmost + self.ircs_scan_counter * self.ircs_step
+
                 # Move the motor
-                self.head_motor.run_to_abs_pos(speed_sp = 500, position_sp = position_to_scan)
+                self.head_motor.run_to_abs_pos(speed_sp = 900, position_sp = position_to_scan, stop_action = 'hold')
+
                 # Wait motion to complete
                 while 'running' in self.head_motor.state:
                     sleep(0.1)
+
                 # Scan current position
                 self.ircs_scan_list[self.ircs_scan_counter] = self.ir_sensor.proximity
+
                 # Advance to next step
                 self.ircs_scan_counter = self.ircs_scan_counter + 1
                 while 'running' in self.head_motor.state:
                     sleep(0.1)
+
             except Exception as theException:
                 ev3te.ev3te_logger.critical("Ev3TrackedExplor3r.actuate_continuous_scan() - " + str(theException))
             return self.ircs_scan_list

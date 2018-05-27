@@ -47,6 +47,7 @@ class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
         self.turn_head_command = 0
         self.is_continuous_scan_activated = False
         self.ircs_scan_list = []
+        self.rover_selected = 0
 
     @staticmethod
     def object_decoder(obj):
@@ -59,4 +60,5 @@ class Ev3TrackedExplor3rMessage(Ev3RobotMessage):
         decoded_object.head_motor_position = obj['head_motor_position']
         decoded_object.is_continuous_scan_activated = obj['is_continuous_scan_activated']
         decoded_object.ircs_scan_list = obj['ircs_scan_list']
+        decoded_object.rover_selected = obj['rover_selected']
         return decoded_object
